@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "preserveConstEnums": true,
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "target": "es2022",
+    "outDir": ".build",
+    "moduleResolution": "node",
+    "lib": ["es2023"],
+    "rootDir": "./",
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "module": "CommonJS"
+  },
+  "include": ["handlers/**/*"],
+  "exclude": ["node_modules/**/*", ".serverless/**/*", ".build/**/*"]
+}

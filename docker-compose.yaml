@@ -1,0 +1,43 @@
+services:
+  nestjs:
+    build:
+      context: .
+      dockerfile: ./services/nestjs/Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mock-ai
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_generation
+
+  mock-ai:
+    build:
+      context: ./services/mock-ai-server
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3001'
+    environment:
+      - LAMBDA_CALLBACK_URL=http://host.docker.internal:3004/dev/callback
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ai_generation
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

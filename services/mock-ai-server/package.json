@@ -1,0 +1,21 @@
+{
+  "name": "mock-ai-server",
+  "version": "1.0.0",
+  "description": "Mock AI server that processes requests and triggers Lambda callbacks",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node --loader ts-node/esm src/index.ts",
+    "dev": "node --loader ts-node/esm src/index.ts"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0"
+  }
+}

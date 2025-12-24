@@ -1,0 +1,40 @@
+service: ai-callback-lambda
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-southeast-2
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL, 'postgresql://postgres:postgres@localhost:5433/ai_generation'}
+
+functions:
+  callback:
+    handler: handlers/callback.callback
+    events:
+      - http:
+          path: callback
+          method: post
+          cors: true
+    environment:
+      DATABASE_URL: ${env:DATABASE_URL, 'postgresql://postgres:postgres@localhost:5433/ai_generation'}
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+package:
+  exclude:
+    - node_modules/**/README.md
+    - handlers/**/*.test.ts
+    - handlers/**/*.spec.ts
+    - .git/** # Example
+
+custom:
+  output:
+    file: .serverless/output.json
+  offline:
+    httpPort: 4000
+    lambdaPort: 3004
+    host: 'localhost'
+    noPrependStageInUrl: true
+    disableCookieValidation: true

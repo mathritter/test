@@ -1,0 +1,16 @@
+.DS_Store
+.env
+**/node_modules
+
+services/lambdas/.build
+services/lambdas/*.tsbuildinfo
+services/lambdas/.env
+services/lambdas/.serverless
+
+services/nestjs/.build
+services/nestjs/*.tsbuildinfo
+services/nestjs/.env
+services/nestjs/dist
+
+services/mock-ai-server/*.tsbuildinfo
+services/mock-ai-server/dist

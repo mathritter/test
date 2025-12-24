@@ -1,0 +1,26 @@
+{
+  "name": "api-code-challenge",
+  "version": "1.0.0",
+  "description": "A project to evaluate potential candidates for the API team",
+  "scripts": {
+    "setup": "./scripts/setup.sh",
+    "start:mock-ai": "ts-node services/mock-ai-server/src/index.ts",
+    "start:nest": "docker-compose up nestjs",
+    "deploy:lambda": "cd services/lambdas && npx serverless offline start --httpPort 3004 --host localhost",
+    "install:all": "npm install && cd services/lambdas && npm install && cd ../nestjs && npm install && cd ../mock-ai-server && npm install",
+    "prisma:migrate": "npx prisma migrate dev --name init",
+    "format": "prettier --write \"**/*.{js,ts,json,md}\"",
+    "overview:diagrams:generate": "npx @mermaid-js/mermaid-cli -i docs/OVERVIEW.md -o docs/OVERVIEW.png"
+  },
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.4.2",
+    "@types/node": "^22.13.17",
+    "prettier": "^3.5.3",
+    "prisma": "^6.5.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0"
+  }
+}

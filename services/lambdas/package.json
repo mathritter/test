@@ -1,0 +1,25 @@
+{
+  "name": "ai-callback-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function for handling AI processing callbacks",
+  "scripts": {
+    "deploy": "npx serverless deploy --stage local",
+    "start:offline": "npx serverless offline start",
+    "prisma:copy-from-shared": "mkdir -p ./prisma && cp ../../prisma/schema.prisma ./prisma/schema.prisma",
+    "prisma:generate": "npm run prisma:copy-from-shared && npx prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "aws-lambda": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.92",
+    "@types/node": "^20.0.0",
+    "prisma": "^6.5.0",
+    "serverless": "^3.38.0",
+    "serverless-localstack": "^1.3.1",
+    "serverless-offline": "^13.3.3",
+    "serverless-plugin-typescript": "^2.1.5",
+    "typescript": "^5.8.2"
+  }
+}
