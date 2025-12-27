@@ -1,10 +1,17 @@
 import express from 'express'
 import axios from 'axios'
 
+const MIN_DELAY: number = 4000 as const
+const MAX_DELAY: number = 8000 as const
+
 const app = express()
 app.use(express.json())
 
 const LAMBDA_CALLBACK_URL = process.env.LAMBDA_CALLBACK_URL || 'http://localhost:3004/dev/callback'
+
+const randomDelay = (min: number, max: number) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
 
 // Helper function to create a delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -15,23 +22,26 @@ app.post('/generate', async (req, res) => {
 
     console.log('Processing generation for prompt: ', prompt)
 
+    const delayMs = randomDelay(MIN_DELAY, MAX_DELAY)
+    console.log('Delaying for', delayMs, 'ms')
+
     // Add a 8-seconds delay before calling the callback
-    await delay(8000) // FIXME: Change to be random between 4-8 seconds
+    await delay(delayMs)
 
     // Trigger Lambda callback
     try {
-      await axios.post(LAMBDA_CALLBACK_URL, {
+      const lambdaResponse = await axios.post(LAMBDA_CALLBACK_URL, {
         prompt,
         generationId,
         timestamp: new Date().toISOString(),
       })
-      console.log('Successfully triggered Lambda callback')
+      console.log('Successfully triggered Lambda callback with response:', lambdaResponse.data)
+      res.status(200).json({ imageUrl: lambdaResponse.data.imageUrl })
     } catch (callbackError) {
       console.error('Failed to trigger Lambda callback:', callbackError)
       throw callbackError
     }
 
-    res.status(200).json({ generationId: generationId })
   } catch (error) {
     console.error('Error processing request:', error)
     if (error instanceof Error) {

@@ -35,6 +35,6 @@ custom:
   offline:
     httpPort: 4000
     lambdaPort: 3004
-    host: 'localhost'
+    host: '0.0.0.0'
     noPrependStageInUrl: true
     disableCookieValidation: true

@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: ./services/nestjs/Dockerfile
+    command: npm run start:dev
     ports:
       - '3000:3000'
     depends_on:
@@ -10,6 +11,16 @@ services:
       - postgres
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_generation
+    develop:
+      watch:
+        - action: rebuild
+          path: ./services/nestjs/src
+          target: /app/src
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./services/nestjs/package.json
+
 
   mock-ai:
     build:

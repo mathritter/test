@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "A project to evaluate potential candidates for the API team",
   "scripts": {
-    "setup": "./scripts/setup.sh",
+    "setup": "bash ./scripts/setup.sh",
     "start:mock-ai": "ts-node services/mock-ai-server/src/index.ts",
     "start:nest": "docker-compose up nestjs",
-    "deploy:lambda": "cd services/lambdas && npx serverless offline start --httpPort 3004 --host localhost",
+    "watch:nest": "docker-compose up nestjs --watch",
+    "deploy:lambda": "cd services/lambdas && npx serverless offline start --httpPort 3004 --host 0.0.0.0",
     "install:all": "npm install && cd services/lambdas && npm install && cd ../nestjs && npm install && cd ../mock-ai-server && npm install",
     "prisma:migrate": "npx prisma migrate dev --name init",
     "format": "prettier --write \"**/*.{js,ts,json,md}\"",
@@ -14,6 +15,8 @@
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^11.4.2",
+    "@nestjs/testing": "^11.1.10",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.13.17",
     "prettier": "^3.5.3",
     "prisma": "^6.5.0",
