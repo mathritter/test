@@ -26,6 +26,15 @@ export class AiController {
   @ApiResponse({
     status: 200,
     description: 'Returns generation by id',
+    content: {
+      'application/json': {
+        example: {
+          generationStatus: 'COMPLETE',
+          prompt: 'A beautiful sunset over a calm ocean',
+          imageUrl: 'http://image-url/cc192efb-f6a5-4b72-94af-07deb8671575',
+        },
+      },
+    },
   })
   @ApiResponse({ status: 404, description: 'Data not found' })
   async findGenerationById(@Param('id') id: string) {
