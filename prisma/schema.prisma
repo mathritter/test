@@ -8,17 +8,25 @@ datasource db {
 }
 
 model generations {
-  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  generationId String      @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @default(now()) @updatedAt
-  public       Boolean     @default(true)
-  flagged      Boolean     @default(false)
-  nsfw         Boolean     @default(false)
-  coreModel    core_models @default(SD)
-  imageHeight  Int
-  imageWidth   Int
-  prompt       String      @db.VarChar(1500)
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  generationId     String            @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now()) @updatedAt
+  public           Boolean           @default(true)
+  flagged          Boolean           @default(false)
+  nsfw             Boolean           @default(false)
+  coreModel        core_models       @default(SD)
+  imageHeight      Int
+  imageWidth       Int
+  imageUrl         String?
+  generationStatus generation_status @default(PENDING)
+  prompt           String            @db.VarChar(1500)
+}
+
+enum generation_status {
+  PENDING
+  COMPLETE
+  FAILED
 }
 
 enum core_models {

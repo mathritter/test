@@ -1,18 +1,23 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common'
+import { Injectable, OnModuleDestroy, NotFoundException } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import axios from 'axios'
+import { GenerationStatus } from '../constants/generation-status.enum'
 
 @Injectable()
 export class AiService implements OnModuleDestroy {
-  private prisma: PrismaClient
   private readonly mockAiUrl = 'http://mock-ai:3001'
 
-  constructor() {
-    this.prisma = new PrismaClient()
-  }
+  constructor(private readonly prisma: PrismaClient) {}
 
   async onModuleDestroy() {
     await this.prisma.$disconnect()
+  }
+
+  private async updateGenerationStatus(generationId: string, status: GenerationStatus, imageUrl?: string) {
+    await this.prisma.generations.update({
+      where: { generationId },
+      data: { generationStatus: status, imageUrl },
+    })
   }
 
   private async processImageGeneration(prompt: string, generationId: string) {
@@ -21,8 +26,8 @@ export class AiService implements OnModuleDestroy {
       console.log('processImageGeneration for generationId', generationId)
       console.log(`${this.mockAiUrl}/generate`)
       const response = await axios.post(`${this.mockAiUrl}/generate`, { prompt, generationId })
-      console.log('response in NestJS service', response)
-      return response.data
+      console.log('response in NestJS service new', response.data.imageUrl)
+      return response.data.imageUrl
     } catch (error) {
       console.error('Error in processImageGeneration:', error)
       if (error instanceof Error) {
@@ -39,13 +44,7 @@ export class AiService implements OnModuleDestroy {
           headers: error.response?.headers,
         })
       }
-      // Update the generation status to failed
-      await this.prisma.generations.update({
-        where: { generationId },
-        data: {
-          updatedAt: new Date(),
-        },
-      })
+
       throw error // Re-throw the error to be caught by the caller
     }
   }
@@ -70,16 +69,13 @@ export class AiService implements OnModuleDestroy {
       // Using Promise.resolve().then() to ensure it runs in the next tick
       Promise.resolve().then(async () => {
         try {
-          await this.processImageGeneration(prompt, generationId)
+          const imageUrl = await this.processImageGeneration(prompt, generationId)
+          // Update the generation status to complete
+          await this.updateGenerationStatus(generationId, GenerationStatus.COMPLETE, imageUrl)
         } catch (error) {
           console.error('Background processing failed:', error)
-
-          await this.prisma.generations.update({
-            where: { generationId },
-            data: {
-              updatedAt: new Date(),
-            },
-          })
+          // Update the generation status to failed
+          await this.updateGenerationStatus(generationId, GenerationStatus.FAILED)
         }
       })
 
@@ -87,6 +83,34 @@ export class AiService implements OnModuleDestroy {
       return { generationId }
     } catch (error) {
       throw new Error(`Failed to initiate image generation: ${error}`)
+    }
+  }
+
+  async findGenerationById(id: string) {
+    console.log('findGenerationById for id', id)
+    try {
+      const generations = await this.prisma.generations.findUnique({
+        select: {
+          generationStatus: true,
+          prompt: true,
+          imageUrl: true,
+        },
+        where: { generationId: id },
+      })
+
+      if (!generations) {
+        throw new NotFoundException(`Data not found`)
+      }
+
+      // won't return imageUrl if generation is not complete
+      if (generations.generationStatus !== GenerationStatus.COMPLETE) {
+        delete generations.imageUrl
+      }
+
+      return generations
+    } catch (error) {
+      console.error('Error in findGenerationById:', error)
+      throw new NotFoundException(`Data not found`)
     }
   }
 }

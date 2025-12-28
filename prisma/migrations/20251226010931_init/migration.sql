@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "generation_status" AS ENUM ('PENDING', 'COMPLETE', 'FAILED');
+
+-- CreateEnum
 CREATE TYPE "core_models" AS ENUM ('SD', 'SDXL');
 
 -- CreateTable
@@ -13,6 +16,8 @@ CREATE TABLE "generations" (
     "coreModel" "core_models" NOT NULL DEFAULT 'SD',
     "imageHeight" INTEGER NOT NULL,
     "imageWidth" INTEGER NOT NULL,
+    "imageUrl" TEXT,
+    "generationStatus" "generation_status" NOT NULL DEFAULT 'PENDING',
     "prompt" VARCHAR(1500) NOT NULL,
 
     CONSTRAINT "generations_pkey" PRIMARY KEY ("id")
