@@ -21,6 +21,9 @@ model generations {
   imageUrl         String?
   generationStatus generation_status @default(PENDING)
   prompt           String            @db.VarChar(1500)
+  retryAttempts    Int               @default(0)
+  lastRetryAt      DateTime?
+  retryErrors      Json?             @default("[]")
 }
 
 enum generation_status {

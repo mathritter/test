@@ -19,6 +19,9 @@ CREATE TABLE "generations" (
     "imageUrl" TEXT,
     "generationStatus" "generation_status" NOT NULL DEFAULT 'PENDING',
     "prompt" VARCHAR(1500) NOT NULL,
+    "retryAttempts" INTEGER NOT NULL DEFAULT 0,
+    "lastRetryAt" TIMESTAMP(3),
+    "retryErrors" JSONB DEFAULT '[]',
 
     CONSTRAINT "generations_pkey" PRIMARY KEY ("id")
 );

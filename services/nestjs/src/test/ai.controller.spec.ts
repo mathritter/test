@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { AiController } from '../controller/ai.controller'
 import { AiService } from '../service/ai.service'
+import { RetryService } from '../service/retry.service'
+import { PrismaService } from '../service/prisma.service'
 import { GenerationStatus } from '../constants/generation-status.enum'
-import { PrismaClient } from '@prisma/client'
 
 const prismaMock = {
   generations: {
@@ -11,6 +12,7 @@ const prismaMock = {
     update: jest.fn(),
   },
   $disconnect: jest.fn(),
+  $connect: jest.fn(),
 }
 
 describe('AiController', () => {
@@ -21,11 +23,17 @@ describe('AiController', () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       controllers: [AiController],
       providers: [
+        RetryService,
+        {
+          provide: PrismaService,
+          useValue: prismaMock,
+        },
         {
           provide: AiService,
-          useFactory: () => {
-            return new AiService(prismaMock as unknown as PrismaClient)
+          useFactory: (prisma: PrismaService, retryService: RetryService) => {
+            return new AiService(prisma, retryService)
           },
+          inject: [PrismaService, RetryService],
         },
       ],
     }).compile()
