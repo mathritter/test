@@ -87,3 +87,48 @@ The front-end receives the event notification.
 | LambdaWrapper (NestJS) | Cost efficiency, scalability and flexibility - WS |
 | Postgres | API database |
 
+
+## Possible risks
+
+### Sensible data exposure
+- Risk: Publicly exposed image URLs.
+- Mitigation: Store the image URL in a S3 bucket and use encryption at rest and in transit (TLS).
+
+### Duplication of events
+
+- Risk: Client receiving duplicate or manipulated notifications.
+- Mitigation: Each event has a unique event_id; client and backend perform deduplication; audit logs.
+
+### Notification abuse
+- Risk: Flooding of jobs or SSE/WS connections to overload the system.
+- Mitigation: Rate limiting via Redis; quotas per user; monitoring with CloudWatch.
+
+### Integrity and reliability
+- Risk: loss of messages due to network or Lambda failures.
+- Mitigation: use of SQS DLQ for unprocessed messages; idempotent reprocessing; reconciliation via REST.
+
+# Advantages
+- Reliability: SQS ensures that no notification is lost.
+- Scalability: SNS allows fan-out for multiple consumers (push, audit, analytics).
+- Flexibility: Redis decides whether the user is online or offline.
+- User experience: SSE/WS delivers in real time; Push covers disconnected/offline users.
+- Managed: Use of AWS services reduces operational effort.
+
+# Disadvantages
+- Complexity: Multiple services (SNS, SQS, Lambda, Redis) increase the learning and integration curve.
+- Scaling costs: The serverless combination of Lambda, SQS, and SNS may become expensive as throughput increases.
+- Lambda cold start: can impact latency in real-time notifications. Which could be avoided by provisioning a pre-determined number of ready containers.
+- Redis maintenance: requires additional configuration and monitoring (ElastiCache).
+ 
+
+## Cost
+- Managed AWS: low initial cost (pay-as-you-go).
+- High scalability: costs can grow with job and notification volume.
+- Redis (ElastiCache) adds a fixed monthly cost.
+
+## Required skills
+- NestJS (REST, SSE/WS).
+- AWS Lambda, SNS, SQS, Redis ElastiCache.
+- JWT security.
+- Push notifications (FCM/APNs/WebPush).
+- Observability (CloudWatch).
